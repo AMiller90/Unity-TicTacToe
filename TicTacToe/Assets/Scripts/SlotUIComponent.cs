@@ -8,21 +8,24 @@ public class SlotUIComponent : MonoBehaviour
 {
     [SerializeField] private RawImage borderSprite;
     [SerializeField] private TMPro.TMP_Text characterDisplayText;
-    private Slot slot;
+    public Slot Slot { get; private set; }
 
     public void Initialize(Slot slot, Texture2D borderSprite, string text = "")
     {
-        this.slot = slot;
+        this.Slot = slot;
         //this.borderSprite.texture = borderSprite;
         this.characterDisplayText.text = text;
     }
 
     public void OnClickBehaviour()
     {
-        if (this.slot.character != ' ')
+        if (this.Slot.character != ' ')
             return;
 
-        this.slot.character = GameController.Instance.currentPlayer.playerChar;
+        this.Slot.character = GameController.Instance.currentPlayer.playerChar;
         this.characterDisplayText.text = GameController.Instance.currentPlayer.playerChar.ToString();
+        GameController.Instance.currentPlayer.coords = new[] {Slot.xPosition, Slot.yPosition};
+        Debug.Log("" + GameController.Instance.currentPlayer.coords[0]+ " " + GameController.Instance.currentPlayer.coords[1]);
+        GameController.Instance.ProcessMove();
     }
 }
