@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace DefaultNamespace
 {
     public class RealPlayer : Player
@@ -15,9 +17,11 @@ namespace DefaultNamespace
             this.coords = new int[2];
         }
         
-        public override int[] TakeTurn()
+        public override int[] TakeTurn(Slot slot)
         {
-            throw new System.NotImplementedException();
+            this.coords = new[] {slot.xPosition, slot.yPosition};
+            Debug.Log("HUMANCOORDS" + " " + this.coords[0] + " " + this.coords[1]);
+            return this.coords;
         }
     }
 }

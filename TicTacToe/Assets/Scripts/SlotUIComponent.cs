@@ -21,11 +21,13 @@ public class SlotUIComponent : MonoBehaviour
     {
         if (this.Slot.character != ' ')
             return;
+        
+        GameController.Instance.ProcessMove(this.Slot);
+    }
 
-        this.Slot.character = GameController.Instance.currentPlayer.playerChar;
-        this.characterDisplayText.text = GameController.Instance.currentPlayer.playerChar.ToString();
-        GameController.Instance.currentPlayer.coords = new[] {Slot.xPosition, Slot.yPosition};
-        Debug.Log("" + GameController.Instance.currentPlayer.coords[0]+ " " + GameController.Instance.currentPlayer.coords[1]);
-        GameController.Instance.ProcessMove();
+    public void UpdateSlot(char character)
+    {
+        this.Slot.character = character;
+        characterDisplayText.text = character.ToString();
     }
 }

@@ -7,9 +7,9 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
-    [SerializeField] private SlotUIComponent[,] GameBoard;
+    private SlotUIComponent[,] GameBoard;
     // Reference to the players
-    public Player[] thePlayers;
+    private Player[] thePlayers;
     [SerializeField] private GameObject _slotPrefab;
     [SerializeField] private GameObject _ticTacToeBoardPanel;
     [SerializeField] private GameboardUIComponent _gameboardUIComponent;
@@ -29,7 +29,7 @@ public class GameController : MonoBehaviour
         thePlayers = new Player[2];
         thePlayers[0] = new RealPlayer('X');
         thePlayers[0].myTurn = true;
-        thePlayers[1] = new RealPlayer('O');
+        thePlayers[1] = new AIPlayer('O', this.boardSize);
         currentPlayer = thePlayers[0];
     }
     
@@ -63,6 +63,9 @@ public class GameController : MonoBehaviour
         this.thePlayers[1].myTurn = !this.thePlayers[1].myTurn;
         
         currentPlayer = this.thePlayers[0].myTurn ? this.thePlayers[0] : this.thePlayers[1];
+        
+        if(currentPlayer is AIPlayer)
+            ProcessMove(null);
     }
 
     private bool GameHasWinner()
@@ -115,8 +118,11 @@ public class GameController : MonoBehaviour
         return NumberOfTurnsTaken == (this.boardSize * this.boardSize);
     }
     
-    public void ProcessMove()
+    public void ProcessMove(Slot slot)
     {
+        int[] coordsSlotChosen = currentPlayer.TakeTurn(slot);
+        this.GameBoard[coordsSlotChosen[0], coordsSlotChosen[1]].UpdateSlot(currentPlayer.playerChar);
+        
         NumberOfTurnsTaken++;
 
         // If Number of turns is less than turns for there to be a possible winner
@@ -137,5 +143,10 @@ public class GameController : MonoBehaviour
         }
         
         this.ChangePlayerTurn();
+    }
+
+    public bool SlotIsEmpty(int[] coords)
+    {
+        return this.GameBoard[coords[0], coords[1]].Slot.character == ' ';
     }
 }

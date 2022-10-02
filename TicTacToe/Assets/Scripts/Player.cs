@@ -11,6 +11,6 @@ namespace DefaultNamespace
         // Reference to number of games won
         public int wins;
         // Abstract function for a player taking their turn
-        public abstract int[] TakeTurn();
+        public abstract int[] TakeTurn(Slot slot);
     }
 }
