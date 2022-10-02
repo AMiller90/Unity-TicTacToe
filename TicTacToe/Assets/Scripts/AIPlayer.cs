@@ -12,8 +12,6 @@ namespace DefaultNamespace
             this.myTurn = false;
             // Set the character to the passed in character
             this.playerChar = character;
-            // Set the number of wins to 0
-            this.wins = 0;
             // Initialize the coordinates
             this.coords = new int[2];
             // Reference to the size of the board

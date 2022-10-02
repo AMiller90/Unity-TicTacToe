@@ -12,7 +12,15 @@ public class GameController : MonoBehaviour
     private Player[] thePlayers;
     [SerializeField] private GameObject _slotPrefab;
     [SerializeField] private GameObject _ticTacToeBoardPanel;
+    [SerializeField] private GameObject _gameStartContainer;
+    [SerializeField] private TMPro.TMP_Dropdown _gameStartGridSizeDropdown;
+    [SerializeField] private TMPro.TMP_Dropdown _gameStartCharacterDropdown;
+    [SerializeField] private GameObject _gameOverContainer;
+    [SerializeField] private TMPro.TMP_Dropdown _gameOverGridSizeDropdown;
+    [SerializeField] private TMPro.TMP_Text _gameOverText;
+    [SerializeField] private TMPro.TMP_Dropdown _gameOverCharacterDropdown;
     [SerializeField] private GameboardUIComponent _gameboardUIComponent;
+
     private GridLayoutGroup boardLayoutGroup;
     private static GameController _gameController;
 
@@ -25,12 +33,6 @@ public class GameController : MonoBehaviour
     void Awake()
     {
         _gameController = this;
-        InitializeBoard(4);
-        thePlayers = new Player[2];
-        thePlayers[0] = new RealPlayer('X');
-        thePlayers[0].myTurn = true;
-        thePlayers[1] = new AIPlayer('O', this.boardSize);
-        currentPlayer = thePlayers[0];
     }
     
     public void InitializeBoard(int maxSize)
@@ -51,12 +53,13 @@ public class GameController : MonoBehaviour
         }
     }
 
-    [ContextMenu("Test")]
-    public void Test()
+    private void ClearBoard()
     {
-        InitializeBoard(4);
+        foreach (Transform child in _ticTacToeBoardPanel.transform) {
+            Destroy(child.gameObject);
+        }
     }
-
+    
     private void ChangePlayerTurn()
     {
         this.thePlayers[0].myTurn = !this.thePlayers[0].myTurn;
@@ -134,12 +137,16 @@ public class GameController : MonoBehaviour
 
         if (GameHasWinner())
         {
-            Debug.Log("Player " + currentPlayer.playerChar + " has won!");
+            _gameOverText.text = "Player " + currentPlayer.playerChar + " wins!";
+            _gameOverContainer.SetActive(true);
             return;
         }
-        else if (IsTieGame())
+        
+        if (IsTieGame())
         {
-            Debug.Log("GAME OVER TIE!!!");
+            _gameOverText.text = "Tie Game!";
+            _gameOverContainer.SetActive(true);
+            return;
         }
         
         this.ChangePlayerTurn();
@@ -148,5 +155,64 @@ public class GameController : MonoBehaviour
     public bool SlotIsEmpty(int[] coords)
     {
         return this.GameBoard[coords[0], coords[1]].Slot.character == ' ';
+    }
+    
+    public void NewGame()
+    {
+        this.InitializeBoard(_gameStartGridSizeDropdown.value + 3);
+        thePlayers = new Player[2];
+        if (_gameStartCharacterDropdown.value == 0)
+        {
+            thePlayers[0] = new RealPlayer('X');
+            thePlayers[0].myTurn = true;
+            currentPlayer = thePlayers[0];
+            thePlayers[1] = new AIPlayer('O', this.boardSize);
+        }
+        else
+        {
+            thePlayers[0] = new RealPlayer('O');
+            thePlayers[1] = new AIPlayer('X', this.boardSize);
+            thePlayers[1].myTurn = true;
+            currentPlayer = thePlayers[1];
+        }
+        
+        _ticTacToeBoardPanel.SetActive(true);
+        _gameStartContainer.SetActive(false);
+        
+        
+        if (currentPlayer is AIPlayer)
+            this.ProcessMove(null);
+    }
+
+    public void PlayAgain()
+    {
+        NumberOfTurnsTaken = 0;
+        this.ClearBoard();
+        this.InitializeBoard(_gameOverGridSizeDropdown.value + 3);
+        thePlayers = new Player[2];
+        if (_gameOverCharacterDropdown.value == 0)
+        {
+            thePlayers[0] = new RealPlayer('X');
+            thePlayers[0].myTurn = true;
+            currentPlayer = thePlayers[0];
+            thePlayers[1] = new AIPlayer('O', this.boardSize);
+        }
+        else
+        {
+            thePlayers[0] = new RealPlayer('O');
+            thePlayers[1] = new AIPlayer('X', this.boardSize);
+            thePlayers[1].myTurn = true;
+            currentPlayer = thePlayers[1];
+        }
+        
+        _gameOverContainer.SetActive(false);
+        
+        if (currentPlayer is AIPlayer)
+            this.ProcessMove(null);
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 }
