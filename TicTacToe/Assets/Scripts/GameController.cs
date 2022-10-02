@@ -74,26 +74,52 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < this.boardSize; i++)
         {
             if (this.GameBoard[i, yCoord].Slot.character != this.currentPlayer.playerChar)
-                return false;
+                break;
+            
+            if (i == boardSize - 1)
+                return true;
         }
         
-        return true;
+        // Check Row
+        for (int i = 0; i < this.boardSize; i++)
+        {
+            if (this.GameBoard[xCoord, i].Slot.character != this.currentPlayer.playerChar)
+                break;
+            if (i == boardSize - 1)
+                return true;
+        }
+        
+        // Check Diagonal From Top Left To Bottom Right
+        for (int i = 0; i < this.boardSize; i++)
+        {
+            if (this.GameBoard[i, i].Slot.character != this.currentPlayer.playerChar)
+                break;
+            if (i == boardSize - 1)
+                return true;
+        }
+
+        // Check Diagonal From Top Right to Bottom Left
+        for (int i = 0; i < this.boardSize; i++)
+        {
+            if (this.GameBoard[i, (this.boardSize - 1) - i].Slot.character != this.currentPlayer.playerChar)
+                break;
+            if (i == boardSize - 1)
+                return true;
+        }
+        
+        return false;
     }
 
     private bool IsTieGame()
     {
-        if (NumberOfTurnsTaken == (this.boardSize * this.boardSize))
-        {
-            return true;
-        }
-
-        return false;
+        return NumberOfTurnsTaken == (this.boardSize * this.boardSize);
     }
     
     public void ProcessMove()
     {
         NumberOfTurnsTaken++;
 
+        // If Number of turns is less than turns for there to be a possible winner
         if (NumberOfTurnsTaken < (this.boardSize * 2) - 1)
         {
             this.ChangePlayerTurn();
