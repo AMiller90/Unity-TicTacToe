@@ -65,6 +65,11 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameboardUIComponent _gameboardUIComponent;
 
     /// <summary>
+    /// Reference to the audio source
+    /// </summary>
+    [SerializeField] private AudioSource _audioSource;
+    
+    /// <summary>
     /// Reference to the boardlayoutgroup
     /// </summary>
     private GridLayoutGroup _boardLayoutGroup;
@@ -213,7 +218,7 @@ public class GameController : MonoBehaviour
         this.GameBoard[coordsSlotChosen[0], coordsSlotChosen[1]].UpdateSlot(_currentPlayer.playerChar);
         
         _numberOfTurnsTaken++;
-
+        _audioSource.Play();
         // If Number of turns is less than turns for there to be a possible winner
         if (_numberOfTurnsTaken < (this._boardSize * 2) - 1)
         {
@@ -253,6 +258,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void NewGame()
     {
+        _audioSource.Play();
         this.InitializeBoard(_gameStartGridSizeDropdown.value + 3);
         _thePlayers = new Player[2];
         if (_gameStartCharacterDropdown.value == 0)
@@ -283,6 +289,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void PlayAgain()
     {
+        _audioSource.Play();
         _numberOfTurnsTaken = 0;
         this.ClearBoard();
         this.InitializeBoard(_gameOverGridSizeDropdown.value + 3);
@@ -313,6 +320,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void QuitGame()
     {
+        _audioSource.Play();
         Application.Quit();
     }
 }
