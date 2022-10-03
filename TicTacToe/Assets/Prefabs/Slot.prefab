@@ -336,7 +336,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   borderSprite: {fileID: 8308918293939078103}
   characterDisplayText: {fileID: 8308918292337051620}
-  slotButton: {fileID: 0}
 --- !u!114 &9215383456772605707
 MonoBehaviour:
   m_ObjectHideFlags: 0

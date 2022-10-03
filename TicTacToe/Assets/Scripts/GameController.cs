@@ -1,43 +1,116 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Xml.Schema;
 using DefaultNamespace;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
+    /// <summary>
+    /// Reference to the slot ui components in the game board
+    /// </summary>
     private SlotUIComponent[,] GameBoard;
-    // Reference to the players
-    private Player[] thePlayers;
+    
+    /// <summary>
+    /// Reference to the players
+    /// </summary>
+    private Player[] _thePlayers;
+    
+    /// <summary>
+    /// Reference to the slot prefab
+    /// </summary>
     [SerializeField] private GameObject _slotPrefab;
+    
+    /// <summary>
+    /// Reference to the tic tac toe board panel
+    /// </summary>
     [SerializeField] private GameObject _ticTacToeBoardPanel;
+    
+    /// <summary>
+    /// Reference to the game start container
+    /// </summary>
     [SerializeField] private GameObject _gameStartContainer;
+    
+    /// <summary>
+    /// Reference to the game start grid size drop down
+    /// </summary>
     [SerializeField] private TMPro.TMP_Dropdown _gameStartGridSizeDropdown;
+    
+    /// <summary>
+    /// Reference to the game start character size drop down
+    /// </summary>
     [SerializeField] private TMPro.TMP_Dropdown _gameStartCharacterDropdown;
+    
+    /// <summary>
+    /// Reference to the game over container
+    /// </summary>
     [SerializeField] private GameObject _gameOverContainer;
+    
+    /// <summary>
+    /// Reference to the game over grid size drop down
+    /// </summary>
     [SerializeField] private TMPro.TMP_Dropdown _gameOverGridSizeDropdown;
+    
+    /// <summary>
+    /// Reference to the game over text
+    /// </summary>
     [SerializeField] private TMPro.TMP_Text _gameOverText;
+    
+    /// <summary>
+    /// Reference to the game over character size drop down
+    /// </summary>
     [SerializeField] private TMPro.TMP_Dropdown _gameOverCharacterDropdown;
+    
+    /// <summary>
+    /// Reference to the gameboardui component
+    /// </summary>
     [SerializeField] private GameboardUIComponent _gameboardUIComponent;
 
-    private GridLayoutGroup boardLayoutGroup;
+    /// <summary>
+    /// Reference to the audio source
+    /// </summary>
+    [SerializeField] private AudioSource _audioSource;
+    
+    /// <summary>
+    /// Reference to the boardlayoutgroup
+    /// </summary>
+    private GridLayoutGroup _boardLayoutGroup;
+    
+    /// <summary>
+    /// Reference to the game controller for singleton pattern
+    /// </summary>
     private static GameController _gameController;
-
+    
+    /// <summary>
+    /// Reference to the game controller for singleton pattern
+    /// </summary>
     public static GameController Instance => _gameController;
-
-    public Player currentPlayer { get; set; }
-    public int NumberOfTurnsTaken { get; set; }
-    private int boardSize;
+    
+    /// <summary>
+    /// Reference to the current player
+    /// </summary>
+    private Player _currentPlayer;
+    
+    /// <summary>
+    /// Reference to the number of turns that have taken place
+    /// </summary>
+    private int _numberOfTurnsTaken;
+    
+    /// <summary>
+    /// Reference to the size of the board chosen by the user
+    /// </summary>
+    private int _boardSize;
 
     void Awake()
     {
         _gameController = this;
     }
     
-    public void InitializeBoard(int maxSize)
+    /// <summary>
+    /// Function used to initialize and set up the board
+    /// </summary>
+    /// <param name="maxSize">the max size of the board chosen by the user</param>
+    private void InitializeBoard(int maxSize)
     {
-        boardSize = maxSize;
+        _boardSize = maxSize;
         _gameboardUIComponent.Initialize(maxSize, 32);
         GameBoard = new SlotUIComponent[maxSize, maxSize];
 
@@ -53,6 +126,9 @@ public class GameController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Function used to clear the board
+    /// </summary>
     private void ClearBoard()
     {
         foreach (Transform child in _ticTacToeBoardPanel.transform) {
@@ -60,76 +136,91 @@ public class GameController : MonoBehaviour
         }
     }
     
+    /// <summary>
+    /// Function used to change player turn
+    /// </summary>
     private void ChangePlayerTurn()
     {
-        this.thePlayers[0].myTurn = !this.thePlayers[0].myTurn;
-        this.thePlayers[1].myTurn = !this.thePlayers[1].myTurn;
+        this._thePlayers[0].myTurn = !this._thePlayers[0].myTurn;
+        this._thePlayers[1].myTurn = !this._thePlayers[1].myTurn;
         
-        currentPlayer = this.thePlayers[0].myTurn ? this.thePlayers[0] : this.thePlayers[1];
+        _currentPlayer = this._thePlayers[0].myTurn ? this._thePlayers[0] : this._thePlayers[1];
         
-        if(currentPlayer is AIPlayer)
+        if(_currentPlayer is AIPlayer)
             ProcessMove(null);
     }
 
+    /// <summary>
+    /// Function to check if the game has a winner
+    /// </summary>
+    /// <returns>Returns true or false whether a player has won</returns>
     private bool GameHasWinner()
     {
-        int xCoord = this.currentPlayer.coords[0];
-        int yCoord = this.currentPlayer.coords[1];
+        int xCoord = this._currentPlayer.coords[0];
+        int yCoord = this._currentPlayer.coords[1];
 
         // Check Column
-        for (int i = 0; i < this.boardSize; i++)
+        for (int i = 0; i < this._boardSize; i++)
         {
-            if (this.GameBoard[i, yCoord].Slot.character != this.currentPlayer.playerChar)
+            if (this.GameBoard[i, yCoord].Slot.character != this._currentPlayer.playerChar)
                 break;
             
-            if (i == boardSize - 1)
+            if (i == _boardSize - 1)
                 return true;
         }
         
         // Check Row
-        for (int i = 0; i < this.boardSize; i++)
+        for (int i = 0; i < this._boardSize; i++)
         {
-            if (this.GameBoard[xCoord, i].Slot.character != this.currentPlayer.playerChar)
+            if (this.GameBoard[xCoord, i].Slot.character != this._currentPlayer.playerChar)
                 break;
-            if (i == boardSize - 1)
+            if (i == _boardSize - 1)
                 return true;
         }
         
         // Check Diagonal From Top Left To Bottom Right
-        for (int i = 0; i < this.boardSize; i++)
+        for (int i = 0; i < this._boardSize; i++)
         {
-            if (this.GameBoard[i, i].Slot.character != this.currentPlayer.playerChar)
+            if (this.GameBoard[i, i].Slot.character != this._currentPlayer.playerChar)
                 break;
-            if (i == boardSize - 1)
+            if (i == _boardSize - 1)
                 return true;
         }
 
         // Check Diagonal From Top Right to Bottom Left
-        for (int i = 0; i < this.boardSize; i++)
+        for (int i = 0; i < this._boardSize; i++)
         {
-            if (this.GameBoard[i, (this.boardSize - 1) - i].Slot.character != this.currentPlayer.playerChar)
+            if (this.GameBoard[i, (this._boardSize - 1) - i].Slot.character != this._currentPlayer.playerChar)
                 break;
-            if (i == boardSize - 1)
+            if (i == _boardSize - 1)
                 return true;
         }
         
         return false;
     }
 
+    /// <summary>
+    /// Function used to check if the game is a tie
+    /// </summary>
+    /// <returns>Returns true or false whether their is a tie</returns>
     private bool IsTieGame()
     {
-        return NumberOfTurnsTaken == (this.boardSize * this.boardSize);
+        return _numberOfTurnsTaken == (this._boardSize * this._boardSize);
     }
     
+    /// <summary>
+    /// Function used to process the most recent move that has taken place
+    /// </summary>
+    /// <param name="slot">the slot of the most recent move</param>
     public void ProcessMove(Slot slot)
     {
-        int[] coordsSlotChosen = currentPlayer.TakeTurn(slot);
-        this.GameBoard[coordsSlotChosen[0], coordsSlotChosen[1]].UpdateSlot(currentPlayer.playerChar);
+        int[] coordsSlotChosen = _currentPlayer.TakeTurn(slot);
+        this.GameBoard[coordsSlotChosen[0], coordsSlotChosen[1]].UpdateSlot(_currentPlayer.playerChar);
         
-        NumberOfTurnsTaken++;
-
+        _numberOfTurnsTaken++;
+        _audioSource.Play();
         // If Number of turns is less than turns for there to be a possible winner
-        if (NumberOfTurnsTaken < (this.boardSize * 2) - 1)
+        if (_numberOfTurnsTaken < (this._boardSize * 2) - 1)
         {
             this.ChangePlayerTurn();
             return;
@@ -137,7 +228,7 @@ public class GameController : MonoBehaviour
 
         if (GameHasWinner())
         {
-            _gameOverText.text = "Player " + currentPlayer.playerChar + " wins!";
+            _gameOverText.text = "Player " + _currentPlayer.playerChar + " wins!";
             _gameOverContainer.SetActive(true);
             return;
         }
@@ -152,67 +243,84 @@ public class GameController : MonoBehaviour
         this.ChangePlayerTurn();
     }
 
+    /// <summary>
+    /// Function to check if a slot is empty based on passed in coords
+    /// </summary>
+    /// <param name="coords">the coords to check in the board</param>
+    /// <returns>Returns true or false if the slot at the coords passed in is empty</returns>
     public bool SlotIsEmpty(int[] coords)
     {
         return this.GameBoard[coords[0], coords[1]].Slot.character == ' ';
     }
     
+    /// <summary>
+    /// Function called to start a new game
+    /// </summary>
     public void NewGame()
     {
+        _audioSource.Play();
         this.InitializeBoard(_gameStartGridSizeDropdown.value + 3);
-        thePlayers = new Player[2];
+        _thePlayers = new Player[2];
         if (_gameStartCharacterDropdown.value == 0)
         {
-            thePlayers[0] = new RealPlayer('X');
-            thePlayers[0].myTurn = true;
-            currentPlayer = thePlayers[0];
-            thePlayers[1] = new AIPlayer('O', this.boardSize);
+            _thePlayers[0] = new RealPlayer('X');
+            _thePlayers[0].myTurn = true;
+            _currentPlayer = _thePlayers[0];
+            _thePlayers[1] = new AIPlayer('O', this._boardSize);
         }
         else
         {
-            thePlayers[0] = new RealPlayer('O');
-            thePlayers[1] = new AIPlayer('X', this.boardSize);
-            thePlayers[1].myTurn = true;
-            currentPlayer = thePlayers[1];
+            _thePlayers[0] = new RealPlayer('O');
+            _thePlayers[1] = new AIPlayer('X', this._boardSize);
+            _thePlayers[1].myTurn = true;
+            _currentPlayer = _thePlayers[1];
         }
         
         _ticTacToeBoardPanel.SetActive(true);
         _gameStartContainer.SetActive(false);
         
         
-        if (currentPlayer is AIPlayer)
+        if (_currentPlayer is AIPlayer)
             this.ProcessMove(null);
     }
 
+    /// <summary>
+    /// Function used to play the game again
+    /// </summary>
     public void PlayAgain()
     {
-        NumberOfTurnsTaken = 0;
+        _audioSource.Play();
+        _numberOfTurnsTaken = 0;
         this.ClearBoard();
         this.InitializeBoard(_gameOverGridSizeDropdown.value + 3);
-        thePlayers = new Player[2];
+        _thePlayers = new Player[2];
         if (_gameOverCharacterDropdown.value == 0)
         {
-            thePlayers[0] = new RealPlayer('X');
-            thePlayers[0].myTurn = true;
-            currentPlayer = thePlayers[0];
-            thePlayers[1] = new AIPlayer('O', this.boardSize);
+            _thePlayers[0] = new RealPlayer('X');
+            _thePlayers[0].myTurn = true;
+            _currentPlayer = _thePlayers[0];
+            _thePlayers[1] = new AIPlayer('O', this._boardSize);
         }
         else
         {
-            thePlayers[0] = new RealPlayer('O');
-            thePlayers[1] = new AIPlayer('X', this.boardSize);
-            thePlayers[1].myTurn = true;
-            currentPlayer = thePlayers[1];
+            _thePlayers[0] = new RealPlayer('O');
+            _thePlayers[1] = new AIPlayer('X', this._boardSize);
+            _thePlayers[1].myTurn = true;
+            _currentPlayer = _thePlayers[1];
         }
         
         _gameOverContainer.SetActive(false);
         
-        if (currentPlayer is AIPlayer)
+        if (_currentPlayer is AIPlayer)
             this.ProcessMove(null);
     }
 
+    /// <summary>
+    /// Function used to quit the game
+    /// </summary>
     public void QuitGame()
     {
+        _audioSource.Play();
         Application.Quit();
     }
 }
