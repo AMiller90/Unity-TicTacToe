@@ -1,22 +1,31 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class SlotUIComponent : MonoBehaviour
 {
-    [SerializeField] private RawImage borderSprite;
+    /// <summary>
+    /// Reference to the character display text
+    /// </summary>
     [SerializeField] private TMPro.TMP_Text characterDisplayText;
+    
+    /// <summary>
+    /// Reference to the Slot in this component
+    /// </summary>
     public Slot Slot { get; private set; }
 
-    public void Initialize(Slot slot, Texture2D borderSprite, string text = "")
+    /// <summary>
+    /// Function used to initialize the Slot object and text
+    /// </summary>
+    /// <param name="slot">the slot to set</param>
+    /// <param name="text">the text to set</param>
+    public void Initialize(Slot slot, string text = "")
     {
         this.Slot = slot;
-        //this.borderSprite.texture = borderSprite;
         this.characterDisplayText.text = text;
     }
 
+    /// <summary>
+    /// Function used to handle user click on slot
+    /// </summary>
     public void OnClickBehaviour()
     {
         if (this.Slot.character != ' ')
@@ -25,6 +34,10 @@ public class SlotUIComponent : MonoBehaviour
         GameController.Instance.ProcessMove(this.Slot);
     }
 
+    /// <summary>
+    /// Function used to update the slot text
+    /// </summary>
+    /// <param name="character">the character to set</param>
     public void UpdateSlot(char character)
     {
         this.Slot.character = character;
